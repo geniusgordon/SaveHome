@@ -7,19 +7,7 @@ const router = new express.Router();
 router.use(authenticate);
 router.use('/api', api);
 router.get('/', (req, res) => {
-  if (!req.isAuthenticated()) {
-    res.render('index', {
-      title: 'Express',
-      message: 'You are not Logged in.',
-      user: false,
-    });
-    return;
-  }
-  res.render('index', {
-    title: 'Express',
-    message: `Hi, ${req.user.username}.`,
-    user: req.user,
-  });
+  res.render('gmap');
 });
 
 module.exports = router;
