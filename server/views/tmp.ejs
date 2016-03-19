@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Report</title>
+  <link rel="icon" href="images/logo.png">
+  <style type="text/css">
+    html{height:100%}
+    body{height:100%;margin:0;padding:0}
+
+    header, main, footer {
+      padding-left: 240px;
+    }
+
+    @media only screen and (max-width : 992px) {
+      header, main, footer {
+        padding-left: 0;
+      }
+    }
+
+  </style>
+  <!-- Compiled and minified CSS -->
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="stylesheets/materialize.min.css">
+  <link rel="stylesheet" href="stylesheets/chartist.css">
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="javascripts/materialize.min.js"></script>
+  <script src="javascripts/chartist.js"></script>
+
+</head>
+<body>  
+
+  <style>
+    span.badge.new {
+      line-height: 20px;
+      margin-top: 22px;
+    }
+  </style>
+  <header>
+    <ul id="slide-out" class="side-nav fixed">
+      <div class="section"></div>
+      <div class="center-align"><img src="images/logo.png"></div>
+      <div class="section"></div>
+      <div class="divider green"></div>
+      <div class="divider green"></div>
+      <div class="section"></div>
+      <li><a href="report"><i class="material-icons teal-text" style="vertical-align: middle">surround_sound</i><b>&nbsp&nbsp&nbsp回&nbsp報&nbsp與&nbsp即&nbsp時&nbsp狀&nbsp況</b></a></li>
+      <li><a href="percent"><i class="material-icons teal-text" style="vertical-align: middle">insert_chart</i><b>&nbsp&nbsp&nbsp昨&nbsp日&nbsp統&nbsp計</b><span class="new badge">4</span></a></li>
+      <li><a href="warning"><i class="material-icons teal-text" style="vertical-align: middle">folder</i><b>&nbsp&nbsp&nbsp累&nbsp積&nbsp數&nbsp據</b></a></li>
+    </ul>
+  </header>
+  <main>
+    <div class="container">
+      <div class="card">
+        <div class="ct-chart"></div>
+      </div>
+    </div>
+  </main>
+</body>
+<script>
+  // Create a simple line chart
+  var data = {
+    // A labels array that can contain any sort of values
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    // Our series array that contains series objects or in this case series data arrays
+    series: [
+      [5, 2, 4, 2, 0]
+    ]
+  };
+
+  // As options we currently only set a static size of 300x200 px
+  var options = {
+    width: '300px',
+    height: '200px'
+  };
+
+  new Chartist.Line('.ct-chart', data, options);
+
+  $.ajax({
+    url: "http://172.17.183.92:9999/api/report/percent",
+    dataType: "JSON",
+    method: "GET",
+    success: function(data) {
+      $('span.badge.new').html(data.total+"&nbsp&nbsp");
+      console.log(data);
+    },
+
+  });
+
+</script>
+</html>
+

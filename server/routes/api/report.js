@@ -21,7 +21,9 @@ router.post('/', (req, res) => {
   const status = req.body.status;
   const lat = req.body.lat;
   const lng = req.body.lng;
-  const report = new Report({ status, lat, lng });
+  const report = new Report({
+    status, lat, lng
+  });
   report.save((err) => {
     if (err) {
       res.status(500).json({
@@ -32,6 +34,38 @@ router.post('/', (req, res) => {
     }
     res.status(200).json({
       success: true,
+    });
+  });
+});
+
+router.get('/percent', (req, res) => {
+  Report.count({}, (err, total) => {
+    Report.aggregate([{
+      $group: {
+        _id: '$status',
+        count: {
+          '$sum': 1,
+        },
+      },
+    }, {
+      $project: {
+        count: 1,
+        percent: {
+          $multiply: [{
+            $divide: [100, total]
+          }, '$count']
+        }
+      }
+    }], (err, reports) => {
+      if (err) {
+        res.status(500).json({
+          err,
+        });
+      }
+      res.status(200).json({
+        total,
+        reports
+      });
     });
   });
 });
