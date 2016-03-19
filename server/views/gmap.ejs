@@ -35,22 +35,28 @@
       padding: 5px;
     }
 
+    .report-fixed-btn {
+      border-radius: 50%;
+      -webkit-transition: -webkit-transform .8s ease-in-out;
+      transition: transform .8s ease-in-out;
+    }
+    .report-fixed-btn:hover {
+      -webkit-transform: rotate(360deg); /* Chrome, Safari, Opera */
+      transform: rotate(360deg);
+    }
+
   </style>
   <!-- Compiled and minified CSS -->
 
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" href="stylesheets/materialize.min.css">
   <link rel="stylesheet" href="stylesheets/sweetalert.css">
-  <!--
   <link rel="stylesheet" href="stylesheets/motion-ui.min.css">
-  -->
   <!-- Compiled and minified JavaScript -->
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
   <script src="javascripts/materialize.min.js"></script>
   <script src="javascripts/sweetalert.min.js"></script>
-  <!--
   <script src="javascripts/motion-ui.min.js"></script>
-  -->
            
   <!--載入 API-->
   <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
@@ -157,6 +163,11 @@
         preMark.setMap(null);
         infowindow.close();
       }
+
+      $('.report-fixed-btn').click(function() {
+       
+      });
+
     }
       
   </script>
@@ -165,7 +176,7 @@
 
   <header>
     <ul id="slide-out" class="side-nav fixed">
-      <li><a href="">First Sidebar Link</a></li>
+      <li><a href="">Report</a></li>
       <li><a href="">Second Sidebar Link</a></li>
     </ul>
 
@@ -173,10 +184,13 @@
 
   <div id="map_canvas" style="height:100%"></div>
 
+  <div class="fixed-action-btn" style="bottom: 45px; right: 60px;">
+    <a class="btn-floating btn-large red waves-effect waves-light">
+      <i class="large material-icons report-fixed-btn">send</i>
+    </a>
+  </div> 
 </body>
 <script>
-  /*
-    */
 
 </script>
 </html>

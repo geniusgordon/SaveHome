@@ -17,7 +17,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
            
   <!--載入 API-->
-  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDpkxtysHhnKngvwaIJLDQF1kKVHRs6nXs"></script>
+  <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"></script>
    
   <script type="text/javascript">
 
@@ -33,9 +34,35 @@
     };
 
     var markers = [];
+
+   var clusterStyles = [
+      {
+        textColor: 'white',
+        url: 'images/sign_s.png',
+        height: 22,
+        width: 22
+      },
+      {
+        textColor: 'white',
+        url: 'images/sign_m.png',
+        height: 37,
+        width: 37
+      },
+      {
+        textColor: 'white',
+        url: 'images/sign_l.png',
+        height: 57,
+        width: 57
+      }
+    ];
+ 
+
+
     function initialize(position) {
-      var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-      console.log(latlng);
+      //var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      var latlng = new google.maps.LatLng(25.0513015, 121.5108233);
+      console.log(latlng.lat());
+      console.log(latlng.lng());
       var mapOptions = {
         center: latlng,
         zoom: 18,
@@ -50,7 +77,40 @@
         draggable: false,
       });
 
+      $.ajax({
+        url: "http://172.17.183.92:9999/api/opendata",
+        dataType: "JSON",
+        method: "GET",
+        data: {
+          lat: 25.0513015,
+          lng: 121.5108233,
+          latDelta: 0.01,
+          lngDelta: 0.01,
+        },
+        success: function(data) {
+          console.log(data);
+          var x;
+          for(x in data.data) {
+            var openlatlng = new google.maps.LatLng(data.data[x].lat, data.data[x].lng);
+            //console.log(openlatlng.lat());
+            //console.log(openlatlng.lng());
+            markers.push(
+              new google.maps.Marker({
+                position: openlatlng,
+                map: map,
+                draggable: false,
+              })
+            );
+          }
+          var mcOptions = {gridSize: 50, maxZoom: 20, styles: clusterStyles};
+          console.log(markers);
+          var mc = new MarkerClusterer (map, markers, mcOptions);
 
+        },
+
+      });
+
+      /*
       var currentMark;
       google.maps.event.addListener(
         map,
@@ -82,6 +142,7 @@
       google.maps.event.addListener(infowindow, 'closeclick', function() {
         currentMark.setMap(null);
       });
+*/
       
     }
       

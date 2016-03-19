@@ -6,8 +6,12 @@ const router = new express.Router();
 
 router.use(authenticate);
 router.use('/api', api);
-router.get('/', (req, res) => {
+router.get('/report', (req, res) => {
   res.render('gmap');
+});
+
+router.get('/warning', (req, res) => {
+  res.render('warning');
 });
 
 module.exports = router;
