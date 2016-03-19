@@ -1,45 +1,15 @@
 const express = require('express');
 const User = require('../../models/user');
-const Report = require('../../models/report');
+const report = require('./report');
+const opendata = require('./opendata');
 const router = new express.Router();
+
+router.use('/report', report);
+router.use('/opendata', opendata);
 
 router.get('/', (req, res) => {
   User.find({}, (err, users) => {
     res.status(200).json(users);
-  });
-});
-
-router.get('/report', (req, res) => {
-  Report.find({}, (err, reports) => {
-    res.status(200).json({
-      reports,
-    });
-  });
-});
-
-router.post('/report', (req, res) => {
-  if (!req.body.status || !req.body.lat || !req.body.lng) {
-    res.status(403).json({
-      success: false,
-      message: 'Invalid post.',
-    });
-    return;
-  }
-  const status = req.body.status;
-  const lat = req.body.lat;
-  const lng = req.body.lng;
-  const report = new Report({ status, lat, lng });
-  report.save((err) => {
-    if (err) {
-      res.status(500).json({
-        success: false,
-        message: 'Save report error.',
-      });
-      return;
-    }
-    res.status(200).json({
-      success: true,
-    });
   });
 });
 

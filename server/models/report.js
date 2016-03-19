@@ -8,6 +8,10 @@ const reportSchema = new Schema({
   },
   lat: Number,
   lng: Number,
+  time: {
+    type: Date,
+    default: Date.now
+  },
 });
 
 module.exports = mongoose.model('report', reportSchema);
