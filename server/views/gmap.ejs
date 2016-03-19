@@ -6,26 +6,51 @@
   <style type="text/css">
     html{height:100%}
     body{height:100%;margin:0;padding:0}
-    #map_canvas{height:100%;padding-left:240px}
+    #map_canvas{height:100%;margin-left:240px}
+
     header, main, footer {
       padding-left: 240px;
     }
-
-    
 
     @media only screen and (max-width : 992px) {
       header, main, footer {
         padding-left: 0;
       }
     }
+
+    .report {
+      margin-left: 5px;
+      cursor: pointer;
+      transition: transform .3s;
+    }
+
+    .report:hover {
+      transition: transform .3s;
+      -webkit-transform: scale(1.1); /* Safari and Chrome */
+      transform: scale(1.1);
+    }
+
+    .img-wrapper {
+      overflow: hidden;
+      padding: 5px;
+    }
+
   </style>
   <!-- Compiled and minified CSS -->
 
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/css/materialize.min.css">
+  <link rel="stylesheet" href="stylesheets/materialize.min.css">
+  <link rel="stylesheet" href="stylesheets/sweetalert.css">
+  <!--
+  <link rel="stylesheet" href="stylesheets/motion-ui.min.css">
+  -->
   <!-- Compiled and minified JavaScript -->
   <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.5/js/materialize.min.js"></script>
+  <script src="javascripts/materialize.min.js"></script>
+  <script src="javascripts/sweetalert.min.js"></script>
+  <!--
+  <script src="javascripts/motion-ui.min.js"></script>
+  -->
            
   <!--載入 API-->
   <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
@@ -55,75 +80,103 @@
 
       var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-      new google.maps.Marker({
+      var currentMark = new google.maps.Marker({
         position: latlng,
         map: map,
         draggable: false,
       });
 
+      currentMark.addListener('mouseover', function() {
+        infowindow.open(map, this);
+      });
 
-      var currentMark;
+      var preMark;
       google.maps.event.addListener(
         map,
         'click',
         function(e) {
 
-          if(currentMark)
-            currentMark.setMap(null);
+          if(preMark)
+            preMark.setMap(null);
 
           var marker = new google.maps.Marker({
             position: e.latLng,
             map: map,
             draggable: false,
+            animation: google.maps.Animation.BOUNCE,
+            icon: "https://maps.gstatic.com/mapfiles/ms2/micons/caution.png",
           });
 
           markers.push(marker);
           infowindow.open(map, marker);
-          currentMark = marker;
+          $('.tooltipped').tooltip({delay: 50});
+          preMark = marker;
         }
       );
 
 
-      var contentString = '<div><i class="large material-icons red-text">assessment</i>&nbsp<i class="large material-icons blue-text">settings_input_component</i>&nbsp<i class="large material-icons yellow-text">settings_input_antenna</i></div>';
+      var contentString = '<div class="img-wrapper"><img class="report tooltipped" data-position="bottom" data-delay="50" data-tooltip="酒駕" data-type="Drunk" src="images/drunk.png"><img class="report tooltipped" data-position="bottom" data-delay="50" data-tooltip="道路標示不清"  data-type="Sign" src="images/sign.png"><img class="report tooltipped" data-position="bottom" data-delay="50" data-tooltip="路面不平" data-type="Wet" src="images/wet.png"><img class="report tooltipped" data-position="bottom" data-delay="50" data-tooltip="視線死角" data-type="Blind" src="images/blind.png"></div>';
+      
+      $('body').on('click', '.report', function() {
+        $('.tooltipped').tooltip('remove');
+        infowindow.close();
+        preMark.setMap(null);
+        var that = this;
+        navigator.geolocation.getCurrentPosition(report);
+          function report(position) {
+            
+            $.ajax({
+              url: "http://172.17.183.92:9999/api/report",
+              method: "POST",
+              data: {
+                status: that.getAttribute('data-type'),
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              },
+              success: function(data) {
+                swal("成功回報!", "感謝您成功回報道路交通不良資訊", "success")
+              },
+              error: function(data) {
+                console.log('yayay');
+                console.warn(data);
+              }
+            });
+            
+        };
+      });
 
       var infowindow = new google.maps.InfoWindow({
         content: contentString
       });
 
       google.maps.event.addListener(infowindow, 'closeclick', function() {
-        currentMark.setMap(null);
+        preMark.setMap(null);
       });
-      
+
+      function close() {
+        preMark.setMap(null);
+        infowindow.close();
+      }
     }
       
   </script>
 </head>
 <body>  
+
   <header>
     <ul id="slide-out" class="side-nav fixed">
-      <li><a href="#!">First Sidebar Link</a></li>
-      <li><a href="#!">Second Sidebar Link</a></li>
+      <li><a href="">First Sidebar Link</a></li>
+      <li><a href="">Second Sidebar Link</a></li>
     </ul>
+
   </header>
-  <div id="map_canvas" style="width:100%; height:100%"></div>
+
+  <div id="map_canvas" style="height:100%"></div>
+
 </body>
 <script>
-  navigator.geolocation.getCurrentPosition(report);
-  function report(position) {
-
-    $.ajax({
-      url: "http://172.17.183.92:9999/api/report",
-      method: "POST",
-      data: {
-        status: "Wet",
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      },
-      success: function(data) {
-         
-      }
-    });
-  };
+  /*
+    */
 
 </script>
 </html>

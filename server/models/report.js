@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const reportSchema = new Schema({
   status: {
     type: String,
-    enum: ['Wet', 'Drink', 'Sign', 'Blind'],
+    enum: ['Wet', 'Drunk', 'Sign', 'Blind'],
   },
   lat: Number,
   lng: Number,
