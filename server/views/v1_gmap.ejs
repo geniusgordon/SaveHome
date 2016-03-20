@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Report</title>
+  <link rel="icon" href="images/logo.png">
+  <style type="text/css">
+    html{height:100%}
+    body{height:100%;margin:0;padding:0}
+    #map_canvas{height:100%;margin-left:240px}
+
+    header, main, footer {
+      padding-left: 240px;
+    }
+
+    @media only screen and (max-width : 992px) {
+      header, main, footer {
+        padding-left: 0;
+      }
+    }
+
+    .report {
+      margin-left: 5px;
+      cursor: pointer;
+      transition: transform .3s;
+    }
+
+    .report:hover {
+      transition: transform .3s;
+      -webkit-transform: scale(1.1); /* Safari and Chrome */
+      transform: scale(1.1);
+    }
+
+    .img-wrapper {
+      overflow: hidden;
+      padding: 5px;
+    }
+
+  </style>
+  <!-- Compiled and minified CSS -->
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="stylesheets/materialize.min.css">
+  <link rel="stylesheet" href="stylesheets/sweetalert.css">
+  <link rel="stylesheet" href="stylesheets/motion-ui.min.css">
+  <link rel="stylesheet" href="stylesheets/chartist.css">
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="javascripts/materialize.min.js"></script>
+  <script src="javascripts/sweetalert.min.js"></script>
+  <script src="javascripts/motion-ui.min.js"></script>
+  <script src="javascripts/chartist.js"></script>
+           
+  <!--載入 API-->
+  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDpkxtysHhnKngvwaIJLDQF1kKVHRs6nXs"></script>
+  <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/markerclusterer/src/markerclusterer.js"></script>
+   
+  <script type="text/javascript">
+
+    if (!navigator.geolocation){
+      console.log("Geolocation is not supported by your browser");
+    }
+    else {
+      navigator.geolocation.getCurrentPosition(initialize, error);
+    }
+
+    function error() {
+      console.log("Unable to retrieve your location");
+    };
+
+    var markers = [];
+    var reportmarkers = {
+      Wet: [],
+      Drunk: [],
+      Blind: [],
+      Sign: [],
+    };
+     var signClusterStyles = [ 
+        {   
+          textColor: 'white',
+          url: 'images/sign_s.png',
+          height: 22, 
+          width: 22
+        },  
+        {   
+          textColor: 'white',
+          url: 'images/sign_m.png',
+          height: 37, 
+          width: 37
+        },  
+        {   
+          textColor: 'white',
+          url: 'images/sign_l.png',
+          height: 57, 
+          width: 57
+        }   
+      ];  
+
+     var drunkClusterStyles = [ 
+        {   
+          textColor: 'white',
+          url: 'images/drunk_s.png',
+          height: 22, 
+          width: 22
+        },  
+        {   
+          textColor: 'white',
+          url: 'images/drunk_m.png',
+          height: 37, 
+          width: 37
+        },  
+        {   
+          textColor: 'white',
+          url: 'images/drunk_l.png',
+          height: 57, 
+          width: 57
+        }   
+      ];  
+
+     var wetClusterStyles = [ 
+        {   
+          textColor: 'white',
+          url: 'images/wet_s.png',
+          height: 22, 
+          width: 22
+        },  
+        {   
+          textColor: 'white',
+          url: 'images/wet_m.png',
+          height: 37, 
+          width: 37
+        },  
+        {   
+          textColor: 'white',
+          url: 'images/wet_l.png',
+          height: 57, 
+          width: 57
+        }   
+      ];  
+
+     var blindClusterStyles = [ 
+        {   
+          textColor: 'white',
+          url: 'images/blind_s.png',
+          height: 22, 
+          width: 22
+        },  
+        {   
+          textColor: 'white',
+          url: 'images/blind_m.png',
+          height: 37, 
+          width: 37
+        },  
+        {   
+          textColor: 'white',
+          url: 'images/blind_l.png',
+          height: 57, 
+          width: 57
+        }   
+      ];  
+
+
+    function initialize(position) {
+
+      var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      var mapOptions = {
+        center: latlng,
+        zoom: 18,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+      };
+
+      var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+      var currentMark = new google.maps.Marker({
+        position: latlng,
+        map: map,
+        draggable: false,
+        icon: "https://maps.gstatic.com/mapfiles/ms2/micons/man.png",
+      });
+
+      currentMark.addListener('mouseover', function() {
+        clicklatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        infowindow.open(map, this);
+      });
+
+      var preMark;
+      google.maps.event.addListener(
+        map,
+        'click',
+        function(e) {
+          clicklatLng = e.latLng
+
+          if(preMark)
+            preMark.setMap(null);
+
+          var marker = new google.maps.Marker({
+            position: e.latLng,
+            map: map,
+            draggable: false,
+            animation: google.maps.Animation.BOUNCE,
+            icon: "https://maps.gstatic.com/mapfiles/ms2/micons/caution.png",
+          });
+
+          markers.push(marker);
+          infowindow.open(map, marker);
+          $('.tooltipped').tooltip({delay: 50});
+          preMark = marker;
+        }
+      );
+
+
+      var contentString = '<div class="img-wrapper"><img class="report tooltipped" data-position="bottom" data-delay="50" data-tooltip="酒駕" data-type="Drunk" src="images/drunk.png"><img class="report tooltipped" data-position="bottom" data-delay="50" data-tooltip="道路標示不清"  data-type="Sign" src="images/sign.png"><img class="report tooltipped" data-position="bottom" data-delay="50" data-tooltip="路面不平" data-type="Wet" src="images/wet.png"><img class="report tooltipped" data-position="bottom" data-delay="50" data-tooltip="視線死角" data-type="Blind" src="images/blind.png"></div>';
+      var clicklatLng;
+      $('body').on('click', '.report', function() {
+        $('.tooltipped').tooltip('remove');
+        infowindow.close();
+        preMark.setMap(null);
+        var that = this;
+        navigator.geolocation.getCurrentPosition(report);
+          function report(position) {
+            $.ajax({
+              url: "http://172.17.183.92:9999/api/report",
+              method: "POST",
+              data: {
+                status: that.getAttribute('data-type'),
+              /*
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              */
+                lat: clicklatLng.lat(),
+                lng: clicklatLng.lng(),
+              },
+              success: function(data) {
+                swal({
+                  title: "成功回報!",
+                  text: "感謝您成功回報道路交通不良資訊",
+                  type: "success",
+                }, function() {
+                  var newlatlng = new google.maps.LatLng(preMark.position.lat, preMark.position.lng);
+                  reportmarkers[that.getAttribute('data-type')].push(
+                    new google.maps.Marker({
+                      position: newlatlng,
+                      map: map,
+                      draggable: false,
+                    })
+                  );
+                  cluster(map);
+                });
+                reloadBadge();
+              },
+              error: function(data) {
+              }
+            });
+            
+        };
+      });
+
+      var infowindow = new google.maps.InfoWindow({
+        content: contentString
+      });
+
+      google.maps.event.addListener(infowindow, 'closeclick', function() {
+        preMark.setMap(null);
+      });
+
+      function close() {
+        preMark.setMap(null);
+        infowindow.close();
+      }
+
+      $.ajax({
+        url: "http://172.17.183.92:9999/api/report",
+        dataType: "JSON",
+        method: "GET",
+        success: function(data) {
+          var x;
+          for(x in data.reports) {
+            var reportlatlng = new google.maps.LatLng(data.reports[x].lat, data.reports[x].lng); 
+            
+            reportmarkers[data.reports[x].status].push(
+              new google.maps.Marker({
+                position: reportlatlng,
+                map: map,
+                draggable: false,
+              })
+            );
+          }
+          cluster(map);
+        },
+      });
+
+    }
+      
+    function cluster(map) {
+      var mcBlind = new MarkerClusterer (map, reportmarkers.Blind, {gridSize: 50, maxZoom: 20, styles: blindClusterStyles});
+      var mcWet = new MarkerClusterer (map, reportmarkers.Wet, {gridSize: 50, maxZoom: 20, styles: wetClusterStyles});
+      var mcSign = new MarkerClusterer (map, reportmarkers.Sign, {gridSize: 50, maxZoom: 20, styles: signClusterStyles});
+      var mcDrunk = new MarkerClusterer (map, reportmarkers.Drunk, {gridSize: 50, maxZoom: 20, styles: drunkClusterStyles});
+    }
+  </script>
+</head>
+<body>  
+
+  <style>
+    span.badge.new {
+      line-height: 20px;
+      margin-top: 22px;
+    }
+  </style>
+  <header>
+    <ul id="slide-out" class="side-nav fixed">
+      <div class="section"></div>
+      <div class="center-align"><img src="images/logo.png"></div>
+      <div class="section"></div>
+      <div class="divider green"></div>
+      <div class="divider green"></div>
+      <div class="section"></div>
+      <li><a href="report"><i class="material-icons teal-text" style="vertical-align: middle">surround_sound</i><b>&nbsp&nbsp&nbsp回&nbsp報&nbsp與&nbsp即&nbsp時&nbsp狀&nbsp況</b></a></li>
+      <li><a href="percent"><i class="material-icons teal-text" style="vertical-align: middle">insert_chart</i><b>&nbsp&nbsp&nbsp昨&nbsp日&nbsp統&nbsp計</b><span class="new badge"></span></a></li>
+      <li><a href="warning"><i class="material-icons teal-text" style="vertical-align: middle">folder</i><b>&nbsp&nbsp&nbsp累&nbsp積&nbsp數&nbsp據</b></a></li>
+      <li><a href="rank"><i class="material-icons teal-text" style="vertical-align: middle">stars</i><b>&nbsp&nbsp&nbsp全&nbsp台&nbsp爛&nbsp路&nbsp排&nbsp名</b></a></li>
+    </ul>
+  </header>
+
+  <div id="map_canvas" style="height:100%"></div>
+
+</body>
+<script>
+  function reloadBadge(){
+    $.ajax({
+    url: "http://172.17.183.92:9999/api/report/percent",
+    dataType: "JSON",
+    method: "GET",
+    success: function(data) {
+      $('span.badge.new').html(data.total+"&nbsp&nbsp");
+    }
+
+    });
+  }
+  reloadBadge();
+</script>
+</html>
+

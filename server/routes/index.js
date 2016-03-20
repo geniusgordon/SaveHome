@@ -7,20 +7,27 @@ const router = new express.Router();
 router.use(authenticate);
 router.use('/api', api);
 router.get('/', (req, res) => {
-  if (!req.isAuthenticated()) {
-    res.render('index', {
-      title: 'Express',
-      message: 'You are not Logged in.',
-      user: false,
-    });
-    return;
-  }
-  res.render('index', {
-    title: 'Express',
-    message: `Hi, ${req.user.username}.`,
-    user: req.user,
-  });
+  res.render('home');
 });
 
+router.get('/report', (req, res) => {
+  res.render('gmap');
+});
+
+router.get('/warning', (req, res) => {
+  res.render('warning');
+});
+
+router.get('/percent', (req, res) => {
+  res.render('percent');
+});
+
+router.get('/rank', (req, res) => {
+  res.render('rank');
+});
+
+router.get('/d3', (req, res) => {
+  res.render('d3');
+});
 module.exports = router;
 

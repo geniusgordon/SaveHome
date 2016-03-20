@@ -37,6 +37,9 @@ require('./routes/socket')(app.io);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+const ejs = require('ejs');
+ejs.delimiter = '$';
+app.engine('ejs',ejs.renderFile)
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
