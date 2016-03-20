@@ -22,6 +22,10 @@ router.get('/percent', (req, res) => {
   res.render('percent');
 });
 
+router.get('/rank', (req, res) => {
+  res.render('rank');
+});
+
 router.get('/d3', (req, res) => {
   res.render('d3');
 });
